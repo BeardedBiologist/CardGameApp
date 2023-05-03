@@ -7,18 +7,20 @@ namespace CardGame
         static void Main(string[] args)
         {
 
-
+            PokerDeck deck = new PokerDeck();
+            
+            
             Console.WriteLine();
         }
     }
 
     public abstract class Deck
     {
-        protected List<PlayingCard> fullDeck = new List<PlayingCard>();
-        protected List<PlayingCard> drawPile = new List<PlayingCard>();
-        protected List<PlayingCard> discardPile = new List<PlayingCard>();
+        protected List<PlayingCardModel> fullDeck = new List<PlayingCardModel>();
+        protected List<PlayingCardModel> drawPile = new List<PlayingCardModel>();
+        protected List<PlayingCardModel> discardPile = new List<PlayingCardModel>();
 
-        public void CreateDeck()
+        protected void CreateDeck()
         {
             fullDeck.Clear();
 
@@ -26,7 +28,7 @@ namespace CardGame
             {
                 for (int val = 0; val < 13; val++)
                 {
-                    fullDeck.Add(new PlayingCard { Suit = (CardSuit)suit, Value = (CardValue)val });
+                    fullDeck.Add(new PlayingCardModel { Suit = (CardSuit)suit, Value = (CardValue)val });
                 }
             }
         }
@@ -37,11 +39,11 @@ namespace CardGame
             drawPile = fullDeck.OrderBy(x => rnd.Next()).ToList();
         }
 
-        public abstract List<PlayingCard> DealCard();
+        public abstract List<PlayingCardModel> DealCard();
 
-        public virtual PlayingCard RequestCard()
+        protected virtual PlayingCardModel DrawOneCard()
         {
-            PlayingCard output = drawPile.Take(1).First();
+            PlayingCardModel output = drawPile.Take(1).First();
             drawPile.Remove(output);
             return output;
         }
@@ -50,40 +52,59 @@ namespace CardGame
 
     public class PokerDeck : Deck
     {
-        public override List<PlayingCard> DealCard()
+        public PokerDeck()
         {
-            throw new NotImplementedException();
+            CreateDeck();
+            ShuffleDeck();
+        }
+
+        public override List<PlayingCardModel> DealCard()
+        {
+            List<PlayingCardModel> output = new List<PlayingCardModel>();
+
+            for (int i = 0; i < 5; i++)
+            {
+                output.Add(DrawOneCard());
+            }
+            return output;
+        }
+
+        public List<PlayingCardModel> RequestCards(List<PlayingCardModel> cardsToDiscard)
+        {
+            List<PlayingCardModel> output = new List<PlayingCardModel>();
+
+            foreach (var card in cardsToDiscard)
+            {
+                output.Add(DrawOneCard());
+                discardPile.Add(card);
+            }
+
+            return output;
         }
     }
 
-    public class PlayingCard
+    public class BlackjackDeck : Deck
     {
-        public CardSuit Suit { get; set; }
-        public CardValue Value { get; set; }
-    }
+        public BlackjackDeck()
+        {
+            CreateDeck();
+            ShuffleDeck();
+        }
 
-    public enum CardSuit
-    {
-        Hearts,
-        Clubs,
-        Diamonds,
-        Spades
-    }
+        public override List<PlayingCardModel> DealCard()
+        {
+            List<PlayingCardModel> output = new List<PlayingCardModel>();
 
-    public enum CardValue
-    {
-        Ace,
-        Two,
-        Three,
-        Four,
-        Five,
-        Six,
-        Seven,
-        Eight,
-        Nine,
-        Ten,
-        Jack,
-        Queen,
-        King
+            for (int i = 0; i < 2; i++)
+            {
+                output.Add(DrawOneCard());
+            }
+            return output;
+        }
+
+        public PlayingCardModel RequestCard()
+        {
+            return DrawOneCard();
+        }
     }
 }
