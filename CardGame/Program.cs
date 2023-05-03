@@ -8,7 +8,15 @@ namespace CardGame
         {
 
             PokerDeck deck = new PokerDeck();
-            
+            // BlackjackDeck deck = new BlackjackDeck()
+
+            // add code here to play games
+            var hand = deck.DealCard();
+
+            foreach (var card in hand)
+            {
+                Console.WriteLine($"{ card.Value.ToString() } of {card.Suit.ToString()} ");
+            }
             
             Console.WriteLine();
         }
